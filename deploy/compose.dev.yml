@@ -1,0 +1,49 @@
+version: "3.9"
+
+services:
+  backend:
+    build:
+      context: ../backend
+    container_name: muzeum-backend-dev
+    env_file:
+      - ../backend/.env
+    ports:
+      - "4000:4000"
+    restart: unless-stopped
+    depends_on:
+      - db
+
+  frontend:
+    build:
+      context: ../frontend
+    container_name: muzeum-frontend-dev
+    env_file:
+      - ../frontend/.env
+    environment:
+      # На dev можно переопределить URL API через env, по умолчанию localhost:4000
+      - VITE_API_URL=http://localhost:4000
+    ports:
+      - "5173:5173"
+    restart: unless-stopped
+    depends_on:
+      - backend
+
+  db:
+    image: postgres:16
+    container_name: muzeum-postgres-dev
+    environment:
+      POSTGRES_USER: muzeum
+      POSTGRES_PASSWORD: muzeum_password
+      POSTGRES_DB: muzeum_db
+    volumes:
+      - postgres_data_dev:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+
+volumes:
+  postgres_data_dev:
+
+networks:
+  default:
+    name: muzeum-dev-network
