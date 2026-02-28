@@ -48,22 +48,23 @@ const getPhotosByUser = async (req, res) => {
 };
 
 const uploadPhoto = async (req, res) => {
-  const { title, description } = req.body;
+  const { title, description, fullDescription } = req.body;
   if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
 
   try {
     const result = await db.query(
-      'INSERT INTO "Photo" (title, description, filename, "userId") VALUES ($1, $2, $3, $4) RETURNING *',
-      [title, description, req.file.filename, req.user.id]
+      'INSERT INTO "Photo" (title, description, "fullDescription", filename, "userId") VALUES ($1, $2, $3, $4, $5) RETURNING *',
+      [title, description, fullDescription, req.file.filename, req.user.id]
     );
     res.status(201).json(result.rows[0]);
   } catch (err) {
-    res.status(500).json({ message: 'Server error' });
+    console.error('Upload error:', err);
+    res.status(500).json({ message: 'Server error', error: err.message });
   }
 };
 
 const updatePhoto = async (req, res) => {
-  const { title, description } = req.body;
+  const { title, description, fullDescription } = req.body;
   try {
     const result = await db.query('SELECT * FROM "Photo" WHERE id = $1', [parseInt(req.params.id)]);
     const photo = result.rows[0];
@@ -75,15 +76,15 @@ const updatePhoto = async (req, res) => {
     }
 
     const updateResult = await db.query(
-      'UPDATE "Photo" SET title = $1, description = $2 WHERE id = $3 RETURNING *',
-      [title, description, parseInt(req.params.id)]
+      'UPDATE "Photo" SET title = $1, description = $2, "fullDescription" = $3 WHERE id = $4 RETURNING *',
+      [title, description, fullDescription, parseInt(req.params.id)]
     );
     res.json(updateResult.rows[0]);
   } catch (err) {
-    res.status(500).json({ message: 'Server error' });
+    console.error('Update error:', err);
+    res.status(500).json({ message: 'Server error', error: err.message });
   }
 };
-
 const deletePhotos = async (req, res) => {
   const { ids } = req.body; // Array of IDs
   try {

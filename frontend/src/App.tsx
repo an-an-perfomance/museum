@@ -9,6 +9,7 @@ import { Gallery } from "./components/Gallery";
 import { AdminPanel } from "./components/AdminPanel";
 import { LoginPage } from "./components/LoginPage";
 import { Header } from "./components/Header";
+import { PhotoDetails } from "./components/PhotoDetails";
 
 const { Content } = Layout;
 
@@ -35,6 +36,7 @@ export function App() {
             <Routes>
               <Route path="/" element={<Landing />} />
               <Route path="/gallery" element={<Gallery />} />
+              <Route path="/photo/:id" element={<PhotoDetails />} />
               <Route path="/login" element={<LoginPage />} />
               <Route
                 path="/admin"

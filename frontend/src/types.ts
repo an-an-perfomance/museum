@@ -10,6 +10,7 @@ export type PhotoType = {
   id: number;
   title: string;
   description?: string;
+  fullDescription?: string;
   filename: string;
   createdAt: string;
   userId: number;

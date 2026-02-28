@@ -18,11 +18,11 @@ CREATE TABLE IF NOT EXISTS "Photo" (
     id SERIAL PRIMARY KEY,
     title TEXT NOT NULL,
     description TEXT,
+    "fullDescription" TEXT,
     filename TEXT NOT NULL,
     "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     "userId" INTEGER NOT NULL REFERENCES "User"(id) ON DELETE CASCADE
 );
-
 -- Insert default admin (password: admin123)
 -- $2a$10$8K1p/a2L2W6W6W6W6W6W6u (example hash for admin123)
 INSERT INTO "User" (username, password, role)

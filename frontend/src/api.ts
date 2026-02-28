@@ -75,6 +75,16 @@ export async function uploadPhoto(formData: FormData): Promise<PhotoType> {
   return res.json();
 }
 
+export async function updatePhoto(id: number, data: { title: string; description?: string }): Promise<PhotoType> {
+  const res = await fetch(`${API_BASE}/photos/${id}`, {
+    method: "PATCH",
+    headers: getHeaders(),
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error("Ошибка при обновлении фото");
+  return res.json();
+}
+
 export async function deletePhotos(ids: number[]): Promise<void> {
   const res = await fetch(`${API_BASE}/photos`, {
     method: "DELETE",
