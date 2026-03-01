@@ -23,8 +23,8 @@ const upload = multer({
 });
 
 router.get('/', getPhotos);
-router.get('/:id', getPhotoById);
 router.get('/user/:userId', getPhotosByUser);
+router.get('/:id', getPhotoById);
 router.post('/', authMiddleware, upload.single('photo'), uploadPhoto);
 router.patch('/:id', authMiddleware, updatePhoto);
 router.delete('/', authMiddleware, deletePhotos);

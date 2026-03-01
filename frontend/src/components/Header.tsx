@@ -3,6 +3,7 @@ import { Layout, Menu, Button, Typography, Space } from "antd";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { logout } from "../store/authSlice";
+import { colors } from "../theme/colors";
 import { LogoutOutlined, UserOutlined, SettingOutlined, PictureOutlined } from "@ant-design/icons";
 
 const { Header: AntHeader } = Layout;
@@ -31,50 +32,50 @@ export const Header: React.FC = () => {
     },
     ...(user?.role === "ADMIN"
       ? [
-          {
-            key: "/admin",
-            label: <Link to="/admin">Админ-панель</Link>,
-            icon: <SettingOutlined />,
-          },
-        ]
+        {
+          key: "/admin",
+          label: <Link to="/admin">Админ-панель</Link>,
+          icon: <SettingOutlined />,
+        },
+      ]
       : []),
   ];
 
   return (
-    <AntHeader style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "#fff", borderBottom: "1px solid #f0f0f0" }}>
+    <AntHeader style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: colors.backgroundLight, borderBottom: `1px solid ${colors.border}` }}>
       <div style={{ display: "flex", alignItems: "center", flex: 1 }}>
-        <div className="logo" style={{ fontWeight: "bold", fontSize: "18px", marginRight: "24px" }}>
+        <div className="logo" style={{ fontWeight: "bold", fontSize: "18px", marginRight: "24px", color: colors.primary }}>
           Музей Школы
         </div>
-        <Menu
-          mode="horizontal"
-          selectedKeys={[location.pathname]}
-          items={menuItems}
-          style={{ flex: 1, borderBottom: "none" }}
-        />
-      </div>
-      
-      <Space size="middle">
-        {isAuthenticated ? (
-          <>
-            <Space>
-              <UserOutlined />
-              <Text strong>{user?.username}</Text>
-            </Space>
-            <Button 
-              type="text" 
-              icon={<LogoutOutlined />} 
-              onClick={handleLogout}
-            >
-              Выйти
-            </Button>
-          </>
-        ) : (
-          <Button type="primary" onClick={() => navigate("/login")}>
-            Войти
+      <Menu
+        mode="horizontal"
+        selectedKeys={[location.pathname]}
+        items={menuItems}
+        style={{ flex: 1, borderBottom: "none", background: colors.backgroundLight }}
+      />
+    </div>
+
+    <Space size="middle">
+      {isAuthenticated ? (
+        <>
+          <Space>
+            <UserOutlined />
+            <Text strong>{user?.username}</Text>
+          </Space>
+          <Button
+            type="text"
+            icon={<LogoutOutlined />}
+            onClick={handleLogout}
+          >
+            Выйти
           </Button>
-        )}
-      </Space>
+        </>
+      ) : (
+        <Button type="primary" onClick={() => navigate("/login")}>
+          Войти
+        </Button>
+      )}
+    </Space>
     </AntHeader>
   );
 };

@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  frontend:
+    name: Frontend build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install, test and build
+        run: |
+          cd frontend
+          npm ci --prefer-offline --no-audit
+          npm run test -- --run
+          npm run build
+
+  backend:
+    name: Backend install
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: backend/package-lock.json
+      - name: Install
+        run: |
+          cd backend
+          npm ci --prefer-offline --no-audit
+      - name: Test
+        run: |
+          cd backend
+          npm test
