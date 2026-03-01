@@ -1,23 +1,33 @@
+# Production: Музей школы — бэкенд, фронт (nginx), PostgreSQL
+# Запуск из папки deploy: docker compose -f compose.prod.yml up -d
+
 version: "3.9"
 
 services:
   backend:
     build:
       context: ../backend
+      dockerfile: Dockerfile
+    image: muzeum-backend:latest
     container_name: muzeum-backend
     env_file:
       - ../backend/.env
-    ports:
-      - "4000:4000"
+    environment:
+      - NODE_ENV=production
+      - PORT=5000
+    volumes:
+      - uploads_data:/app/src/uploads
+    expose:
+      - "5000"
     restart: unless-stopped
     depends_on:
-      - db
+      db:
+        condition: service_started
 
   frontend:
     image: nginx:alpine
     container_name: muzeum-frontend
     volumes:
-      # Ожидаем, что фронтенд собран в ../frontend/dist
       - ../frontend/dist:/usr/share/nginx/html:ro
       - ./nginx/frontend.conf:/etc/nginx/conf.d/default.conf:ro
     ports:
@@ -27,7 +37,7 @@ services:
       - backend
 
   db:
-    image: postgres:16
+    image: postgres:16-alpine
     container_name: muzeum-postgres
     environment:
       POSTGRES_USER: muzeum
@@ -39,6 +49,7 @@ services:
 
 volumes:
   postgres_data:
+  uploads_data:
 
 networks:
   default:

@@ -1,33 +1,18 @@
-FROM node:20-alpine AS base
+# Бэкенд MuzeumProject (Node.js Express, src/index.js)
+FROM node:20-alpine
 
 WORKDIR /app
-
-RUN npm install -g npm@latest
-
-FROM base AS deps
-
-COPY package.json ./
-
-RUN npm install --production=false
-
-FROM base AS build
-
-COPY --from=deps /app/node_modules ./node_modules
-COPY tsconfig.json ./
-COPY src ./src
-
-RUN npm run build
-
-FROM node:20-alpine AS production
 
 ENV NODE_ENV=production
-WORKDIR /app
 
-COPY package.json ./
-COPY --from=deps /app/node_modules ./node_modules
-COPY --from=build /app/dist ./dist
+COPY package.json package-lock.json* ./
+RUN npm ci --omit=dev || npm install --omit=dev
 
-EXPOSE 3000
+COPY . .
 
-CMD ["node", "dist/index.js"]
+# Папка для загрузок (в проде монтируется volume)
+RUN mkdir -p src/uploads
 
+EXPOSE 5000
+
+CMD ["node", "src/index.js"]
