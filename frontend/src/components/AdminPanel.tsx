@@ -125,16 +125,6 @@ export const AdminPanel: React.FC = () => {
     }
   };
 
-  const handleDeletePhoto = async (id: number) => {
-    try {
-      await deletePhotos([id]);
-      message.success("Фото удалено");
-      dispatch(fetchPhotos());
-    } catch (err) {
-      message.error("Ошибка при удалении фото");
-    }
-  };
-
   const handleDeleteSelectedPhotos = async () => {
     if (selectedPhotoIds.length === 0) return;
     try {
@@ -195,7 +185,7 @@ export const AdminPanel: React.FC = () => {
       dataIndex: "fullDescription",
       key: "fullDescription",
       ellipsis: true,
-      render: (text: string | undefined, record: PhotoType) => {
+      render: (_text: string | undefined, record: PhotoType) => {
         const content = record.fullDescription || "—";
         return (
           <Typography.Text
