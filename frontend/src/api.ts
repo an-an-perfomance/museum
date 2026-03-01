@@ -1,4 +1,4 @@
-import type { PhotoType, UserType, AuthResponse, LoginCredentials, CreateUserData } from "./types";
+import type { PhotoType, VideoType, UserType, AuthResponse, LoginCredentials, CreateUserData } from "./types";
 
 const API_BASE =
   typeof import.meta.env?.VITE_API_URL === "string"
@@ -13,6 +13,10 @@ const UPLOADS_BASE =
 
 export function getUploadsUrl(filename: string): string {
   return `${UPLOADS_BASE}/uploads/${filename}`;
+}
+
+export function getVideosUrl(filename: string): string {
+  return `${UPLOADS_BASE}/uploads/videos/${filename}`;
 }
 
 const getHeaders = () => {
@@ -116,4 +120,60 @@ export async function deletePhotos(ids: number[]): Promise<void> {
     body: JSON.stringify({ ids }),
   });
   if (!res.ok) throw new Error("Ошибка при удалении фото");
+}
+
+const VIDEOS_PAGE_SIZE = 50;
+
+export type FetchVideosResponse = { videos: VideoType[]; total: number };
+
+export async function fetchVideos(
+  offset = 0,
+  limit = VIDEOS_PAGE_SIZE
+): Promise<FetchVideosResponse> {
+  const params = new URLSearchParams({ offset: String(offset), limit: String(limit) });
+  const res = await fetch(`${API_BASE}/videos?${params}`);
+  if (!res.ok) throw new Error("Не удалось загрузить видео");
+  return res.json();
+}
+
+export async function getVideoById(id: number): Promise<VideoType> {
+  const res = await fetch(`${API_BASE}/videos/${id}`);
+  if (!res.ok) throw new Error("Видео не найдено");
+  return res.json();
+}
+
+export async function uploadVideo(formData: FormData): Promise<VideoType> {
+  const token = localStorage.getItem("token");
+  const res = await fetch(`${API_BASE}/videos`, {
+    method: "POST",
+    headers: {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: formData,
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    const msg = typeof data?.message === "string" ? data.message : "Ошибка при загрузке видео";
+    throw new Error(msg);
+  }
+  return res.json();
+}
+
+export async function updateVideo(id: number, data: { title: string; description?: string; fullDescription?: string }): Promise<VideoType> {
+  const res = await fetch(`${API_BASE}/videos/${id}`, {
+    method: "PATCH",
+    headers: getHeaders(),
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error("Ошибка при обновлении видео");
+  return res.json();
+}
+
+export async function deleteVideos(ids: number[]): Promise<void> {
+  const res = await fetch(`${API_BASE}/videos`, {
+    method: "DELETE",
+    headers: getHeaders(),
+    body: JSON.stringify({ ids }),
+  });
+  if (!res.ok) throw new Error("Ошибка при удалении видео");
 }

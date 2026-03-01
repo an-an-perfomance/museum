@@ -3,7 +3,7 @@
 Монорепозиторий проекта музея с раздельными приложениями:
 - `backend` — API на Node.js (Express/Nest-подобная структура).
 - `frontend` — SPA на React (Vite).
-- `deploy` — конфигурация Docker/Docker Compose и nginx для деплоя.
+- `deploy` — конфигурация Docker/Docker Compose и nginx для деплоя (фото, видео, пользователи).
 
 ### Структура
 

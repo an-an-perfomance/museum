@@ -20,6 +20,20 @@ export type PhotoType = {
   };
 };
 
+export type VideoType = {
+  id: number;
+  title: string;
+  description?: string;
+  fullDescription?: string;
+  filename: string;
+  createdAt: string;
+  userId: number;
+  user?: {
+    id: number;
+    username: string;
+  };
+};
+
 export type AuthResponse = {
   token: string;
   user: UserType;
