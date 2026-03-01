@@ -4,14 +4,17 @@ import { ConfigProvider, Layout } from "antd";
 import ruRU from "antd/locale/ru_RU";
 import { useAppDispatch, useAppSelector } from "./store/hooks";
 import { fetchPhotos } from "./store/photosSlice";
+import { fetchVideos } from "./store/videosSlice";
 import { colors } from "./theme/colors";
 import { Landing } from "./components/Landing";
 import { Gallery } from "./components/Gallery";
+import { VideoGallery } from "./components/VideoGallery";
 import { AdminPanel } from "./components/AdminPanel";
 import { LoginPage } from "./components/LoginPage";
 import { Header } from "./components/Header";
 import { Footer } from "./components/Footer";
 import { PhotoDetails } from "./components/PhotoDetails";
+import { VideoDetails } from "./components/VideoDetails";
 
 const { Content } = Layout;
 
@@ -27,6 +30,7 @@ export function App() {
 
   useEffect(() => {
     void dispatch(fetchPhotos());
+    void dispatch(fetchVideos());
   }, [dispatch]);
 
   return (
@@ -52,6 +56,8 @@ export function App() {
               <Route path="/" element={<Landing />} />
               <Route path="/gallery" element={<Gallery />} />
               <Route path="/photo/:id" element={<PhotoDetails />} />
+              <Route path="/videos" element={<VideoGallery />} />
+              <Route path="/video/:id" element={<VideoDetails />} />
               <Route path="/login" element={<LoginPage />} />
               <Route
                 path="/admin"

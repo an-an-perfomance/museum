@@ -27,6 +27,9 @@ build/
 frontend/node_modules/
 frontend/dist/
 
+# Backend uploads (фото/видео; в проде хранятся в Docker volume)
+backend/src/uploads/
+
 # Environment variables
 .env
 *.env.local

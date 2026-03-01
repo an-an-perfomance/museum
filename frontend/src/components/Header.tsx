@@ -4,7 +4,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { logout } from "../store/authSlice";
 import { colors } from "../theme/colors";
-import { LogoutOutlined, UserOutlined, SettingOutlined, PictureOutlined } from "@ant-design/icons";
+import { LogoutOutlined, UserOutlined, SettingOutlined, PictureOutlined, VideoCameraOutlined } from "@ant-design/icons";
 
 const { Header: AntHeader } = Layout;
 const { Text } = Typography;
@@ -29,6 +29,11 @@ export const Header: React.FC = () => {
       key: "/gallery",
       label: <Link to="/gallery">Галерея</Link>,
       icon: <PictureOutlined />,
+    },
+    {
+      key: "/videos",
+      label: <Link to="/videos">Видео</Link>,
+      icon: <VideoCameraOutlined />,
     },
     ...(user?.role === "ADMIN"
       ? [
