@@ -17,7 +17,7 @@ export function Landing() {
       onClick={() => navigate("/gallery")}
     >
       <Content style={{ padding: "2rem 1rem 4rem", textAlign: "center" }}>
-        <Title level={1} style={{ marginBottom: "2rem" }}>
+        <Title level={1} style={{ marginBottom: "2rem", color: colors.primary, fontWeight: 700 }}>
           Музей школы
         </Title>
 
@@ -68,7 +68,7 @@ export function Landing() {
           </div>
         )}
 
-        <Text type="secondary">Нажмите в любом месте, чтобы перейти в галерею</Text>
+        <Text style={{ color: colors.textSecondary }}>Нажмите в любом месте, чтобы перейти в галерею</Text>
       </Content>
     </Layout>
   );

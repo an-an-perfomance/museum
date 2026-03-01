@@ -66,19 +66,19 @@ export const PhotoDetails: React.FC = () => {
           />
         </div>
 
-        <Title level={1}>{photo.title}</Title>
+        <Title level={1} style={{ color: colors.primary, fontWeight: 600 }}>{photo.title}</Title>
         
         <div style={{ marginTop: "2rem" }}>
-          <Title level={4}>Описание</Title>
+          <Title level={4} style={{ color: colors.primary }}>Описание</Title>
           <Paragraph style={{ fontSize: "1.1rem", lineHeight: "1.8", whiteSpace: "pre-wrap" }}>
             {photo.fullDescription || photo.description || "Описание отсутствует"}
           </Paragraph>
         </div>
 
         <div style={{ marginTop: "3rem", borderTop: `1px solid ${colors.border}`, paddingTop: "1rem" }}>
-          <Text type="secondary">Автор: {photo.user?.username || "Неизвестен"}</Text>
+          <Text style={{ color: colors.textSecondary }}>Автор: {photo.user?.username || "Неизвестен"}</Text>
           <br />
-          <Text type="secondary">Дата: {new Date(photo.createdAt).toLocaleDateString()}</Text>
+          <Text style={{ color: colors.textSecondary }}>Дата: {new Date(photo.createdAt).toLocaleDateString()}</Text>
         </div>
       </Content>
     </Layout>

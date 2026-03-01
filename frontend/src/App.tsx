@@ -10,6 +10,7 @@ import { Gallery } from "./components/Gallery";
 import { AdminPanel } from "./components/AdminPanel";
 import { LoginPage } from "./components/LoginPage";
 import { Header } from "./components/Header";
+import { Footer } from "./components/Footer";
 import { PhotoDetails } from "./components/PhotoDetails";
 
 const { Content } = Layout;
@@ -36,6 +37,9 @@ export function App() {
           colorPrimary: colors.primary,
           colorLink: colors.primary,
           colorLinkHover: colors.gold,
+          colorText: colors.textSecondary,
+          colorTextHeading: colors.primary,
+          colorError: colors.primaryRed,
           borderRadius: 6,
         },
       }}
@@ -43,7 +47,7 @@ export function App() {
       <HashRouter>
         <Layout style={{ minHeight: "100vh", background: colors.backgroundLight }}>
           <Header />
-          <Content>
+          <Content style={{ flex: 1 }}>
             <Routes>
               <Route path="/" element={<Landing />} />
               <Route path="/gallery" element={<Gallery />} />
@@ -59,6 +63,7 @@ export function App() {
               />
             </Routes>
           </Content>
+          <Footer />
         </Layout>
       </HashRouter>
     </ConfigProvider>

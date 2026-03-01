@@ -42,12 +42,25 @@ export const Header: React.FC = () => {
   ];
 
   return (
-    <AntHeader style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: colors.backgroundLight, borderBottom: `1px solid ${colors.border}` }}>
+    <AntHeader style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: colors.backgroundLight, borderBottom: `1px solid ${colors.border}`, minHeight: 88, height: 88 }}>
       <div style={{ display: "flex", alignItems: "center", flex: 1 }}>
+        <img
+          src="/logo.png"
+          alt="Логотип"
+          style={{
+            width: 80,
+            height: 80,
+            borderRadius: "50%",
+            objectFit: "cover",
+            marginRight: 12,
+            flexShrink: 0,
+          }}
+        />
         <div className="logo" style={{ fontWeight: "bold", fontSize: "18px", marginRight: "24px", color: colors.primary }}>
-          Музей Школы
+          Музей Школы №323
         </div>
       <Menu
+        className="header-menu"
         mode="horizontal"
         selectedKeys={[location.pathname]}
         items={menuItems}

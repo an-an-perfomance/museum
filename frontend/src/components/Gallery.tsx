@@ -2,7 +2,7 @@ import { Card, Col, Empty, Image, Layout, Row, Spin, Typography, Tooltip, Button
 import { InfoCircleOutlined, DownOutlined } from "@ant-design/icons";
 import { Link, useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
-import { fetchPhotos } from "../store/photosSlice";
+import { fetchPhotos, type PhotosState } from "../store/photosSlice";
 import { getUploadsUrl } from "../api";
 import { colors } from "../theme/colors";
 
@@ -13,7 +13,7 @@ const PHOTOS_PAGE_SIZE = 50;
 export function Gallery() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const { items: photos, total, loading, loadingMore, error } = useAppSelector((s) => s.photos);
+  const { items: photos, total, loading, loadingMore, error } = useAppSelector((s) => s.photos) as PhotosState;
   const hasMore = total > PHOTOS_PAGE_SIZE && photos.length < total;
 
   return (
@@ -32,7 +32,7 @@ export function Gallery() {
           Музей школы №323
         </Link>
         <span style={{ fontSize: "1.25rem", fontWeight: 600, color: colors.primaryRed }}>
-          Оккервиль
+          КОЦ «Оккервиль»
         </span>
       </Layout.Header>
 
@@ -61,7 +61,7 @@ export function Gallery() {
                   <Col xs={24} sm={12} md={8} lg={8} key={photo.id}>
                     <Card
                       hoverable
-                      style={{ border: `1px solid ${colors.border}`, boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }}
+                      style={{ background: colors.background, border: `1px solid ${colors.border}`, boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }}
                       cover={
                         <div
                           style={{
@@ -83,13 +83,13 @@ export function Gallery() {
                         </div>
                       }
                     >
-                      <Card.Meta 
+                      <Card.Meta
                         title={
                           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                             <span>{photo.title}</span>
                             <Tooltip title="Открыть полное описание фото">
-                              <InfoCircleOutlined 
-                                style={{ color: colors.primary, cursor: "pointer" }} 
+                              <InfoCircleOutlined
+                                style={{ color: colors.primary, cursor: "pointer" }}
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   navigate(`/photo/${photo.id}`);
@@ -97,7 +97,7 @@ export function Gallery() {
                               />
                             </Tooltip>
                           </div>
-                        } 
+                        }
                         description={photo.description}
                       />
                     </Card>

@@ -20,7 +20,7 @@ export const fetchPhotos = createAsyncThunk<
   }
 );
 
-type PhotosState = {
+export type PhotosState = {
   items: PhotoType[];
   total: number;
   loading: boolean;
