@@ -1,16 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { Table, Button, Modal, Form, Input, Select, Space, Typography, message, Popconfirm, Tabs, Image, Upload } from "antd";
-import { CopyOutlined, UserAddOutlined, DeleteOutlined, KeyOutlined, EditOutlined, PlusOutlined, UploadOutlined } from "@ant-design/icons";
+import { CopyOutlined, UserAddOutlined, DeleteOutlined, KeyOutlined, EditOutlined, PlusOutlined, UploadOutlined, DownOutlined } from "@ant-design/icons";
 import { getUsers, createUser, deleteUser, resetUserPassword, deletePhotos, updatePhoto, uploadPhoto, getUploadsUrl } from "../api";
 import type { UserType, PhotoType } from "../types";
 import { colors } from "../theme/colors";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { fetchPhotos } from "../store/photosSlice";
 const { Title, Text } = Typography;
+const PHOTOS_PAGE_SIZE = 50;
 
 export const AdminPanel: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { items: photos, loading: photosLoading } = useAppSelector((s) => s.photos);
+  const { items: photos, total: photosTotal, loading: photosLoading, loadingMore: photosLoadingMore } = useAppSelector((s) => s.photos);
+  const hasMorePhotos = photosTotal > PHOTOS_PAGE_SIZE && photos.length < photosTotal;
   const [users, setUsers] = useState<UserType[]>([]);
   const [usersLoading, setUsersLoading] = useState(false);
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
@@ -312,6 +314,17 @@ export const AdminPanel: React.FC = () => {
             rowKey="id"
             loading={photosLoading}
           />
+          {hasMorePhotos && (
+            <div style={{ textAlign: "center", padding: "16px 0" }}>
+              <Button
+                icon={<DownOutlined />}
+                loading={photosLoadingMore}
+                onClick={() => dispatch(fetchPhotos({ offset: photos.length, limit: PHOTOS_PAGE_SIZE }))}
+              >
+                Загрузить ещё ({photos.length} из {photosTotal})
+              </Button>
+            </div>
+          )}
         </>
       ),
     },

@@ -2,14 +2,26 @@ const db = require('../db');
 const fs = require('fs');
 const path = require('path');
 
+const PAGE_SIZE = 50;
+
 const getPhotos = async (req, res) => {
   try {
-    const result = await db.query(`
-      SELECT p.*, json_build_object('id', u.id, 'username', u.username) as user
-      FROM "Photo" p
-      JOIN "User" u ON p."userId" = u.id
-    `);
-    res.json(result.rows);
+    const limit = Math.min(Math.max(1, parseInt(req.query.limit, 10) || PAGE_SIZE), 100);
+    const offset = Math.max(0, parseInt(req.query.offset, 10) || 0);
+
+    const [photosResult, countResult] = await Promise.all([
+      db.query(`
+        SELECT p.*, json_build_object('id', u.id, 'username', u.username) as user
+        FROM "Photo" p
+        JOIN "User" u ON p."userId" = u.id
+        ORDER BY p.id
+        LIMIT $1 OFFSET $2
+      `, [limit, offset]),
+      db.query('SELECT COUNT(*)::int AS total FROM "Photo"'),
+    ]);
+
+    const total = countResult.rows[0].total;
+    res.json({ photos: photosResult.rows, total });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error' });

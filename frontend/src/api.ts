@@ -23,8 +23,16 @@ const getHeaders = () => {
   };
 };
 
-export async function fetchPhotos(): Promise<PhotoType[]> {
-  const res = await fetch(`${API_BASE}/photos`);
+const PHOTOS_PAGE_SIZE = 50;
+
+export type FetchPhotosResponse = { photos: PhotoType[]; total: number };
+
+export async function fetchPhotos(
+  offset = 0,
+  limit = PHOTOS_PAGE_SIZE
+): Promise<FetchPhotosResponse> {
+  const params = new URLSearchParams({ offset: String(offset), limit: String(limit) });
+  const res = await fetch(`${API_BASE}/photos?${params}`);
   if (!res.ok) throw new Error("Не удалось загрузить фотографии");
   return res.json();
 }
