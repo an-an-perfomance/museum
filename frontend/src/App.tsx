@@ -28,10 +28,19 @@ export function App() {
   }, [dispatch]);
 
   return (
-    <ConfigProvider locale={ruRU}>
+    <ConfigProvider
+      locale={ruRU}
+      theme={{
+        token: {
+          colorPrimary: "#1a5fa8",
+          colorLink: "#1a5fa8",
+          colorLinkHover: "#f5a623",
+          borderRadius: 6,
+        },
+      }}
+    >
       <HashRouter>
-        <Layout style={{ minHeight: "100vh", background: "#fff" }}>
-          <Header />
+        <Layout style={{ minHeight: "100vh", background: "#f0f6ff" }}>          <Header />
           <Content>
             <Routes>
               <Route path="/" element={<Landing />} />

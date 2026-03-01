@@ -31,50 +31,48 @@ export const Header: React.FC = () => {
     },
     ...(user?.role === "ADMIN"
       ? [
-          {
-            key: "/admin",
-            label: <Link to="/admin">Админ-панель</Link>,
-            icon: <SettingOutlined />,
-          },
-        ]
+        {
+          key: "/admin",
+          label: <Link to="/admin">Админ-панель</Link>,
+          icon: <SettingOutlined />,
+        },
+      ]
       : []),
   ];
 
-  return (
-    <AntHeader style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "#fff", borderBottom: "1px solid #f0f0f0" }}>
-      <div style={{ display: "flex", alignItems: "center", flex: 1 }}>
-        <div className="logo" style={{ fontWeight: "bold", fontSize: "18px", marginRight: "24px" }}>
-          Музей Школы
-        </div>
-        <Menu
-          mode="horizontal"
-          selectedKeys={[location.pathname]}
-          items={menuItems}
-          style={{ flex: 1, borderBottom: "none" }}
-        />
+  return <AntHeader style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "#fff", borderBottom: "1px solid #f0f0f0" }}>
+    <div style={{ display: "flex", alignItems: "center", flex: 1 }}>
+      <div className="logo" style={{ fontWeight: "bold", fontSize: "18px", marginRight: "24px" }}>
+        Музей Школы
       </div>
-      
-      <Space size="middle">
-        {isAuthenticated ? (
-          <>
-            <Space>
-              <UserOutlined />
-              <Text strong>{user?.username}</Text>
-            </Space>
-            <Button 
-              type="text" 
-              icon={<LogoutOutlined />} 
-              onClick={handleLogout}
-            >
-              Выйти
-            </Button>
-          </>
-        ) : (
-          <Button type="primary" onClick={() => navigate("/login")}>
-            Войти
+      <Menu
+        mode="horizontal"
+        selectedKeys={[location.pathname]}
+        items={menuItems}
+        style={{ flex: 1, borderBottom: "none" }}
+      />
+    </div>
+
+    <Space size="middle">
+      {isAuthenticated ? (
+        <>
+          <Space>
+            <UserOutlined />
+            <Text strong>{user?.username}</Text>
+          </Space>
+          <Button
+            type="text"
+            icon={<LogoutOutlined />}
+            onClick={handleLogout}
+          >
+            Выйти
           </Button>
-        )}
-      </Space>
-    </AntHeader>
-  );
+        </>
+      ) : (
+        <Button type="primary" onClick={() => navigate("/login")}>
+          Войти
+        </Button>
+      )}
+    </Space>
+  </AntHeader>
 };

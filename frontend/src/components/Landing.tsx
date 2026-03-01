@@ -40,9 +40,8 @@ export function Landing() {
         {!loading && photos.length > 0 && (
           <div style={{ maxWidth: 800, margin: "0 auto 2rem" }}>
             <Carousel autoplay effect="fade" dotPosition="bottom">
-              {photos.map((photo) => (
-                <div key={photo.id}>
-                  <div
+            {photos.map((photo) => (
+                <div key={photo.id} onClick={(e) => { e.stopPropagation(); navigate(`/photo/${photo.id}`); }}>                  <div
                     style={{
                       height: 400,
                       background: "#f0f0f0",
