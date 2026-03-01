@@ -1,9 +1,19 @@
-import type { PhotoType, UserType, AuthResponse } from "./types";
+import type { PhotoType, UserType, AuthResponse, LoginCredentials, CreateUserData } from "./types";
 
 const API_BASE =
   typeof import.meta.env?.VITE_API_URL === "string"
     ? import.meta.env.VITE_API_URL
     : "http://localhost:5000/api";
+
+/** Базовый URL для статики (uploads), без /api */
+const UPLOADS_BASE =
+  typeof import.meta.env?.VITE_API_URL === "string"
+    ? import.meta.env.VITE_API_URL.replace(/\/api\/?$/, "") || "http://localhost:5000"
+    : "http://localhost:5000";
+
+export function getUploadsUrl(filename: string): string {
+  return `${UPLOADS_BASE}/uploads/${filename}`;
+}
 
 const getHeaders = () => {
   const token = localStorage.getItem("token");
@@ -19,7 +29,13 @@ export async function fetchPhotos(): Promise<PhotoType[]> {
   return res.json();
 }
 
-export async function login(credentials: any): Promise<AuthResponse> {
+export async function getPhotoById(id: number): Promise<PhotoType> {
+  const res = await fetch(`${API_BASE}/photos/${id}`);
+  if (!res.ok) throw new Error("Фотография не найдена");
+  return res.json();
+}
+
+export async function login(credentials: LoginCredentials): Promise<AuthResponse> {
   const res = await fetch(`${API_BASE}/users/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -35,7 +51,7 @@ export async function getUsers(): Promise<UserType[]> {
   return res.json();
 }
 
-export async function createUser(data: any): Promise<UserType> {
+export async function createUser(data: CreateUserData): Promise<UserType> {
   const res = await fetch(`${API_BASE}/users/admin/users`, {
     method: "POST",
     headers: getHeaders(),

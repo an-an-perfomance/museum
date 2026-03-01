@@ -2,8 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Layout, Typography, Spin, Image, Button, Breadcrumb } from "antd";
 import { ArrowLeftOutlined } from "@ant-design/icons";
-import { fetchPhotos } from "../api";
+import { getPhotoById, getUploadsUrl } from "../api";
 import type { PhotoType } from "../types";
+import { colors } from "../theme/colors";
 
 const { Content } = Layout;
 const { Title, Paragraph, Text } = Typography;
@@ -15,17 +16,13 @@ export const PhotoDetails: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!id) return;
     const loadPhoto = async () => {
       try {
-        const photos = await fetchPhotos();
-        const found = photos.find((p) => p.id === Number(id));
-        if (found) {
-          setPhoto(found);
-        } else {
-          setError("Фотография не найдена");
-        }
+        const data = await getPhotoById(Number(id));
+        setPhoto(data);
       } catch (err) {
-        setError("Ошибка при загрузке данных");
+        setError("Фотография не найдена");
       } finally {
         setLoading(false);
       }
@@ -53,7 +50,7 @@ export const PhotoDetails: React.FC = () => {
   }
 
   return (
-    <Layout style={{ minHeight: "100vh", background: "#fff" }}>
+    <Layout style={{ minHeight: "100vh", background: colors.background }}>
       <Content style={{ padding: "2rem", maxWidth: 1000, margin: "0 auto", width: "100%" }}>
         <Breadcrumb style={{ marginBottom: "1.5rem" }}>
           <Breadcrumb.Item><Link to="/">Главная</Link></Breadcrumb.Item>
@@ -63,7 +60,7 @@ export const PhotoDetails: React.FC = () => {
 
         <div style={{ marginBottom: "2rem" }}>
           <Image
-            src={`http://localhost:5000/uploads/${photo.filename}`}
+            src={getUploadsUrl(photo.filename)}
             alt={photo.title}
             style={{ width: "100%", borderRadius: "8px", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}
           />
@@ -78,7 +75,7 @@ export const PhotoDetails: React.FC = () => {
           </Paragraph>
         </div>
 
-        <div style={{ marginTop: "3rem", borderTop: "1px solid #eee", paddingTop: "1rem" }}>
+        <div style={{ marginTop: "3rem", borderTop: `1px solid ${colors.border}`, paddingTop: "1rem" }}>
           <Text type="secondary">Автор: {photo.user?.username || "Неизвестен"}</Text>
           <br />
           <Text type="secondary">Дата: {new Date(photo.createdAt).toLocaleDateString()}</Text>

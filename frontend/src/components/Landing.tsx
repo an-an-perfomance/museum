@@ -1,6 +1,8 @@
 import { Carousel, Empty, Layout, Spin, Typography } from "antd";
 import { useNavigate } from "react-router-dom";
 import { useAppSelector } from "../store/hooks";
+import { getUploadsUrl } from "../api";
+import { colors } from "../theme/colors";
 
 const { Content } = Layout;
 const { Title, Text } = Typography;
@@ -44,7 +46,7 @@ export function Landing() {
                 <div key={photo.id} onClick={(e) => { e.stopPropagation(); navigate(`/photo/${photo.id}`); }}>                  <div
                     style={{
                       height: 400,
-                      background: "#f0f0f0",
+                      background: colors.backgroundLight,
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
@@ -52,7 +54,7 @@ export function Landing() {
                     }}
                   >
                     <img
-                      src={`http://localhost:5000/uploads/${photo.filename}`}
+                      src={getUploadsUrl(photo.filename)}
                       alt={photo.title}                      style={{
                         maxWidth: "100%",
                         maxHeight: "100%",

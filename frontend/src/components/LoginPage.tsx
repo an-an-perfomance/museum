@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "../store/hooks";
 import { setCredentials } from "../store/authSlice";
 import { login } from "../api";
+import { colors } from "../theme/colors";
 
 const { Title } = Typography;
 const { Content } = Layout;
@@ -29,7 +30,7 @@ export const LoginPage: React.FC = () => {
   };
 
   return (
-    <Content style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh", background: "#f0f2f5" }}>
+    <Content style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh", background: colors.backgroundLight }}>
       <Card style={{ width: 400, boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}>
         <div style={{ textAlign: "center", marginBottom: "24px" }}>
           <Title level={2}>Вход в систему</Title>

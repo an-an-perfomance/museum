@@ -1,14 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { Table, Button, Modal, Form, Input, Select, Space, Typography, message, Popconfirm, Tabs, Image, Upload } from "antd";
-import { CopyOutlined, UserAddOutlined, DeleteOutlined, KeyOutlined, EditOutlined, EyeOutlined, PlusOutlined, UploadOutlined } from "@ant-design/icons";
-import { getUsers, createUser, deleteUser, resetUserPassword, fetchPhotos, deletePhotos, updatePhoto, uploadPhoto } from "../api";
+import { CopyOutlined, UserAddOutlined, DeleteOutlined, KeyOutlined, EditOutlined, PlusOutlined, UploadOutlined } from "@ant-design/icons";
+import { getUsers, createUser, deleteUser, resetUserPassword, deletePhotos, updatePhoto, uploadPhoto, getUploadsUrl } from "../api";
 import type { UserType, PhotoType } from "../types";
+import { colors } from "../theme/colors";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
+import { fetchPhotos } from "../store/photosSlice";
 const { Title, Text } = Typography;
 
 export const AdminPanel: React.FC = () => {
+  const dispatch = useAppDispatch();
+  const { items: photos, loading: photosLoading } = useAppSelector((s) => s.photos);
   const [users, setUsers] = useState<UserType[]>([]);
-  const [photos, setPhotos] = useState<PhotoType[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [usersLoading, setUsersLoading] = useState(false);
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
   const [isResetModalVisible, setIsResetModalVisible] = useState(false);
   const [isPhotoModalVisible, setIsPhotoModalVisible] = useState(false);
@@ -20,35 +24,26 @@ export const AdminPanel: React.FC = () => {
   const [editPhotoForm] = Form.useForm();
   const [fileList, setFileList] = useState<any[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [fullDescriptionModal, setFullDescriptionModal] = useState<{ open: boolean; text: string }>({ open: false, text: "" });
+  const [selectedPhotoIds, setSelectedPhotoIds] = useState<React.Key[]>([]);
+  const [selectedUserIds, setSelectedUserIds] = useState<React.Key[]>([]);
 
   const loadUsers = async () => {
-    setLoading(true);
+    setUsersLoading(true);
     try {
       const data = await getUsers();
       setUsers(data);
     } catch (err) {
       message.error("Не удалось загрузить список пользователей");
     } finally {
-      setLoading(false);
-    }
-  };
-
-  const loadPhotos = async () => {
-    setLoading(true);
-    try {
-      const data = await fetchPhotos();
-      setPhotos(data);
-    } catch (err) {
-      message.error("Не удалось загрузить список фотографий");
-    } finally {
-      setLoading(false);
+      setUsersLoading(false);
     }
   };
 
   useEffect(() => {
     loadUsers();
-    loadPhotos();
-  }, []);
+    dispatch(fetchPhotos());
+  }, [dispatch]);
 
   const handleAddUser = async (values: any) => {
     try {
@@ -62,23 +57,29 @@ export const AdminPanel: React.FC = () => {
     }
   };
 
-  const handleDeleteUser = async (id: number) => {
+  const handleResetSelectedUserPassword = async () => {
+    if (selectedUserIds.length !== 1) return;
     try {
-      await deleteUser(id);
-      message.success("Пользователь удален");
-      loadUsers();
-    } catch (err) {
-      message.error("Ошибка при удалении пользователя");
-    }
-  };
-
-  const handleResetPassword = async (id: number) => {
-    try {
-      const { newPassword } = await resetUserPassword(id);
+      const { newPassword } = await resetUserPassword(selectedUserIds[0] as number);
       setGeneratedPassword(newPassword);
+      setSelectedUserIds([]);
       setIsResetModalVisible(true);
     } catch (err) {
       message.error("Ошибка при сбросе пароля");
+    }
+  };
+
+  const handleDeleteSelectedUsers = async () => {
+    if (selectedUserIds.length === 0) return;
+    try {
+      for (const id of selectedUserIds as number[]) {
+        await deleteUser(id);
+      }
+      message.success(`Удалено пользователей: ${selectedUserIds.length}`);
+      setSelectedUserIds([]);
+      loadUsers();
+    } catch (err) {
+      message.error("Ошибка при удалении пользователя");
     }
   };
 
@@ -100,7 +101,7 @@ export const AdminPanel: React.FC = () => {
       setIsPhotoModalVisible(false);
       photoForm.resetFields();
       setFileList([]);
-      loadPhotos();
+      dispatch(fetchPhotos());
     } catch (err) {
       message.error("Ошибка при загрузке фото");
     } finally {
@@ -115,7 +116,8 @@ export const AdminPanel: React.FC = () => {
       message.success("Фото обновлено");
       setIsEditPhotoModalVisible(false);
       setEditingPhoto(null);
-      loadPhotos();
+      setSelectedPhotoIds([]);
+      dispatch(fetchPhotos());
     } catch (err) {
       message.error("Ошибка при обновлении фото");
     }
@@ -125,10 +127,35 @@ export const AdminPanel: React.FC = () => {
     try {
       await deletePhotos([id]);
       message.success("Фото удалено");
-      loadPhotos();
+      dispatch(fetchPhotos());
     } catch (err) {
       message.error("Ошибка при удалении фото");
     }
+  };
+
+  const handleDeleteSelectedPhotos = async () => {
+    if (selectedPhotoIds.length === 0) return;
+    try {
+      await deletePhotos(selectedPhotoIds as number[]);
+      message.success(`Удалено фото: ${selectedPhotoIds.length}`);
+      setSelectedPhotoIds([]);
+      dispatch(fetchPhotos());
+    } catch (err) {
+      message.error("Ошибка при удалении фото");
+    }
+  };
+
+  const handleEditSelectedPhoto = () => {
+    if (selectedPhotoIds.length !== 1) return;
+    const record = photos.find((p) => p.id === selectedPhotoIds[0]);
+    if (!record) return;
+    setEditingPhoto(record);
+    editPhotoForm.setFieldsValue({
+      title: record.title,
+      description: record.description,
+      fullDescription: record.fullDescription,
+    });
+    setIsEditPhotoModalVisible(true);
   };
 
   const copyToClipboard = () => {
@@ -140,31 +167,12 @@ export const AdminPanel: React.FC = () => {
     { title: "ID", dataIndex: "id", key: "id" },
     { title: "Имя пользователя", dataIndex: "username", key: "username" },
     { title: "Роль", dataIndex: "role", key: "role" },
-    {
-      title: "Действия",
-      key: "actions",
-      render: (_: any, record: UserType) => (
-        <Space size="middle">
-          <Button
-            icon={<KeyOutlined />}
-            onClick={() => handleResetPassword(record.id)}
-          >
-            Сбросить пароль
-          </Button>
-          <Popconfirm
-            title="Вы уверены, что хотите удалить этого пользователя?"
-            onConfirm={() => handleDeleteUser(record.id)}
-            okText="Да"
-            cancelText="Нет"
-          >
-            <Button icon={<DeleteOutlined />} danger>
-              Удалить
-            </Button>
-          </Popconfirm>
-        </Space>
-      ),
-    },
   ];
+
+  const userRowSelection = {
+    selectedRowKeys: selectedUserIds,
+    onChange: (keys: React.Key[]) => setSelectedUserIds(keys),
+  };
 
   const photoColumns = [
     { 
@@ -173,43 +181,42 @@ export const AdminPanel: React.FC = () => {
       render: (_: any, record: PhotoType) => (
         <Image
           width={50}
-          src={`http://localhost:5000/uploads/${record.filename}`}
+          src={getUploadsUrl(record.filename)}
           fallback="https://via.placeholder.com/50"
         />
       )
     },
     { title: "Название", dataIndex: "title", key: "title" },
     { title: "Описание", dataIndex: "description", key: "description", ellipsis: true },
-    { title: "Автор", key: "author", render: (_: any, record: any) => record.user?.username },
     {
-      title: "Действия",
-      key: "actions",
-      render: (_: any, record: PhotoType) => (
-        <Space size="middle">
-          <Button 
-            icon={<EditOutlined />} 
-            onClick={() => {
-              setEditingPhoto(record);
-              editPhotoForm.setFieldsValue({
-                title: record.title,
-                description: record.description,
-                fullDescription: record.fullDescription
-              });
-              setIsEditPhotoModalVisible(true);
+      title: "Полное описание",
+      dataIndex: "fullDescription",
+      key: "fullDescription",
+      ellipsis: true,
+      render: (text: string | undefined, record: PhotoType) => {
+        const content = record.fullDescription || "—";
+        return (
+          <Typography.Text
+            ellipsis
+            style={{
+              cursor: content !== "—" ? "pointer" : "default",
+              color: content !== "—" ? colors.primary : undefined,
+              textDecoration: content !== "—" ? "underline" : "none",
             }}
-          />
-          <Popconfirm
-            title="Удалить это фото?"
-            onConfirm={() => handleDeletePhoto(record.id)}
-            okText="Да"
-            cancelText="Нет"
+            onClick={() => content !== "—" && setFullDescriptionModal({ open: true, text: content })}
           >
-            <Button icon={<DeleteOutlined />} danger />
-          </Popconfirm>
-        </Space>
-      ),
+            {content}
+          </Typography.Text>
+        );
+      },
     },
+    { title: "Автор", key: "author", render: (_: any, record: any) => record.user?.username },
   ];
+
+  const photoRowSelection = {
+    selectedRowKeys: selectedPhotoIds,
+    onChange: (keys: React.Key[]) => setSelectedPhotoIds(keys),
+  };
 
   const items = [
     {
@@ -217,21 +224,45 @@ export const AdminPanel: React.FC = () => {
       label: 'Пользователи',
       children: (
         <>
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "16px" }}>
-            <Title level={4}>Управление пользователями</Title>
-            <Button
-              type="primary"
-              icon={<UserAddOutlined />}
-              onClick={() => setIsAddModalVisible(true)}
-            >
-              Добавить пользователя
-            </Button>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px", flexWrap: "wrap", gap: "8px" }}>
+            <Title level={4} style={{ margin: 0 }}>Управление пользователями</Title>
+            <Space>
+              <Button
+                type="primary"
+                icon={<UserAddOutlined />}
+                onClick={() => setIsAddModalVisible(true)}
+              >
+                Добавить пользователя
+              </Button>
+              <Button
+                icon={<KeyOutlined />}
+                onClick={handleResetSelectedUserPassword}
+                disabled={selectedUserIds.length !== 1}
+              >
+                Сбросить пароль
+              </Button>
+              <Popconfirm
+                title={selectedUserIds.length > 1 ? `Удалить выбранных пользователей (${selectedUserIds.length})?` : "Удалить выбранного пользователя?"}
+                onConfirm={handleDeleteSelectedUsers}
+                okText="Да"
+                cancelText="Нет"
+              >
+                <Button
+                  icon={<DeleteOutlined />}
+                  danger
+                  disabled={selectedUserIds.length === 0}
+                >
+                  Удалить
+                </Button>
+              </Popconfirm>
+            </Space>
           </div>
           <Table
+            rowSelection={userRowSelection}
             columns={userColumns}
             dataSource={users}
             rowKey="id"
-            loading={loading}
+            loading={usersLoading}
           />
         </>
       ),
@@ -241,21 +272,45 @@ export const AdminPanel: React.FC = () => {
       label: 'Фотографии',
       children: (
         <>
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "16px" }}>
-            <Title level={4}>Управление фотографиями</Title>
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={() => setIsPhotoModalVisible(true)}
-            >
-              Добавить фото
-            </Button>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px", flexWrap: "wrap", gap: "8px" }}>
+            <Title level={4} style={{ margin: 0 }}>Управление фотографиями</Title>
+            <Space>
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={() => setIsPhotoModalVisible(true)}
+              >
+                Добавить фото
+              </Button>
+              <Button
+                icon={<EditOutlined />}
+                onClick={handleEditSelectedPhoto}
+                disabled={selectedPhotoIds.length !== 1}
+              >
+                Редактировать
+              </Button>
+              <Popconfirm
+                title={selectedPhotoIds.length > 1 ? `Удалить выбранные фото (${selectedPhotoIds.length})?` : "Удалить выбранное фото?"}
+                onConfirm={handleDeleteSelectedPhotos}
+                okText="Да"
+                cancelText="Нет"
+              >
+                <Button
+                  icon={<DeleteOutlined />}
+                  danger
+                  disabled={selectedPhotoIds.length === 0}
+                >
+                  Удалить
+                </Button>
+              </Popconfirm>
+            </Space>
           </div>
           <Table
+            rowSelection={photoRowSelection}
             columns={photoColumns}
             dataSource={photos}
             rowKey="id"
-            loading={loading}
+            loading={photosLoading}
           />
         </>
       ),
@@ -318,7 +373,7 @@ export const AdminPanel: React.FC = () => {
         ]}
       >
         <Text>Новый пароль для пользователя:</Text>
-        <div style={{ marginTop: "10px", padding: "10px", background: "#f5f5f5", borderRadius: "4px", textAlign: "center" }}>
+        <div style={{ marginTop: "10px", padding: "10px", background: colors.backgroundLight, borderRadius: "4px", textAlign: "center" }}>
           <Text strong style={{ fontSize: "18px" }}>{generatedPassword}</Text>
         </div>
       </Modal>
@@ -356,6 +411,23 @@ export const AdminPanel: React.FC = () => {
             </Upload>
           </Form.Item>
         </Form>
+      </Modal>
+
+      {/* Модалка просмотра полного описания */}
+      <Modal
+        title="Полное описание"
+        open={fullDescriptionModal.open}
+        onCancel={() => setFullDescriptionModal({ open: false, text: "" })}
+        footer={[
+          <Button key="close" type="primary" onClick={() => setFullDescriptionModal({ open: false, text: "" })}>
+            Закрыть
+          </Button>,
+        ]}
+        width={560}
+      >
+        <div style={{ whiteSpace: "pre-wrap", maxHeight: "60vh", overflow: "auto", padding: "8px 0" }}>
+          {fullDescriptionModal.text}
+        </div>
       </Modal>
 
       {/* Модалка редактирования фото */}

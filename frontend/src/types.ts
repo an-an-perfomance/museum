@@ -24,3 +24,14 @@ export type AuthResponse = {
   token: string;
   user: UserType;
 };
+
+export type LoginCredentials = {
+  username: string;
+  password: string;
+};
+
+export type CreateUserData = {
+  username: string;
+  password: string;
+  role?: Role;
+};

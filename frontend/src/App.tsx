@@ -4,6 +4,7 @@ import { ConfigProvider, Layout } from "antd";
 import ruRU from "antd/locale/ru_RU";
 import { useAppDispatch, useAppSelector } from "./store/hooks";
 import { fetchPhotos } from "./store/photosSlice";
+import { colors } from "./theme/colors";
 import { Landing } from "./components/Landing";
 import { Gallery } from "./components/Gallery";
 import { AdminPanel } from "./components/AdminPanel";
@@ -32,15 +33,16 @@ export function App() {
       locale={ruRU}
       theme={{
         token: {
-          colorPrimary: "#1a5fa8",
-          colorLink: "#1a5fa8",
-          colorLinkHover: "#f5a623",
+          colorPrimary: colors.primary,
+          colorLink: colors.primary,
+          colorLinkHover: colors.gold,
           borderRadius: 6,
         },
       }}
     >
       <HashRouter>
-        <Layout style={{ minHeight: "100vh", background: "#f0f6ff" }}>          <Header />
+        <Layout style={{ minHeight: "100vh", background: colors.backgroundLight }}>
+          <Header />
           <Content>
             <Routes>
               <Route path="/" element={<Landing />} />

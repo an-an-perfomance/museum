@@ -3,6 +3,7 @@ import { Layout, Menu, Button, Typography, Space } from "antd";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { logout } from "../store/authSlice";
+import { colors } from "../theme/colors";
 import { LogoutOutlined, UserOutlined, SettingOutlined, PictureOutlined } from "@ant-design/icons";
 
 const { Header: AntHeader } = Layout;
@@ -40,16 +41,17 @@ export const Header: React.FC = () => {
       : []),
   ];
 
-  return <AntHeader style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "#fff", borderBottom: "1px solid #f0f0f0" }}>
-    <div style={{ display: "flex", alignItems: "center", flex: 1 }}>
-      <div className="logo" style={{ fontWeight: "bold", fontSize: "18px", marginRight: "24px" }}>
-        Музей Школы
-      </div>
+  return (
+    <AntHeader style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: colors.backgroundLight, borderBottom: `1px solid ${colors.border}` }}>
+      <div style={{ display: "flex", alignItems: "center", flex: 1 }}>
+        <div className="logo" style={{ fontWeight: "bold", fontSize: "18px", marginRight: "24px", color: colors.primary }}>
+          Музей Школы
+        </div>
       <Menu
         mode="horizontal"
         selectedKeys={[location.pathname]}
         items={menuItems}
-        style={{ flex: 1, borderBottom: "none" }}
+        style={{ flex: 1, borderBottom: "none", background: colors.backgroundLight }}
       />
     </div>
 
@@ -74,5 +76,6 @@ export const Header: React.FC = () => {
         </Button>
       )}
     </Space>
-  </AntHeader>
+    </AntHeader>
+  );
 };
